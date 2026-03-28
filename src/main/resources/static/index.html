@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Service Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Styles */
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Dashboard Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .stat-info h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-info p {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Main Content */
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        /* Form Styles */
+        .form-container {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid #e9ecef;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .form-container h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        /* Search and Filter */
+        .search-filter {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input input {
+            width: 100%;
+            padding: 10px 10px 10px 35px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .filter-toggle {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filters-panel {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            flex: 1;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .sort-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .sort-btn {
+            padding: 8px 15px;
+            background: white;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+
+        .sort-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Table Styles */
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .service-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .service-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .service-table th,
+        .service-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .service-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+
+        .edit-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            padding: 8px 12px;
+            border: 2px solid #e1e5e9;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .page-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .page-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        /* Loading and Empty States */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideInRight 0.3s ease-out;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .toast-success {
+            background: #28a745;
+        }
+
+        .toast-error {
+            background: #dc3545;
+        }
+
+        .toast-info {
+            background: #17a2b8;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .filters-panel {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .sort-buttons {
+                flex-wrap: wrap;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <span>🚗</span>
+                Vehicle Service Management System
+            </h1>
+            <p>Efficiently manage and track all vehicle service records</p>
+        </div>
+
+        <div id="app"></div>
+    </div>
+
+    <script>
+        // Data Storage
+        let services = [];
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let currentFilters = {
+            vehicleNumber: '',
+            serviceType: ''
+        };
+        let currentSort = {
+            field: 'date',
+            order: 'desc'
+        };
+        let editingService = null;
+        let showForm = false;
+
+        // Service Types
+        const serviceTypes = [
+            'Oil Change',
+            'Tire Rotation',
+            'Engine Tune-up',
+            'Brake Service',
+            'Battery Check',
+            'General Maintenance'
+        ];
+
+        const statuses = ['Pending', 'In Progress', 'Completed', 'Cancelled'];
+
+        // Load data from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('vehicleServices');
+            if (saved) {
+                services = JSON.parse(saved);
+            } else {
+                // Add sample data
+                services = [
+                    {
+                        id: '1',
+                        vehicleNumber: 'KA01AB1234',
+                        ownerName: 'John Doe',
+                        serviceType: 'Oil Change',
+                        date: '2024-01-15',
+                        cost: 2500,
+                        status: 'Completed',
+                        description: 'Regular oil change service'
+                    },
+                    {
+                        id: '2',
+                        vehicleNumber: 'MH02CD5678',
+                        ownerName: 'Jane Smith',
+                        serviceType: 'Brake Service',
+                        date: '2024-01-20',
+                        cost: 3500,
+                        status: 'In Progress',
+                        description: 'Brake pad replacement'
+                    },
+                    {
+                        id: '3',
+                        vehicleNumber: 'DL03EF9012',
+                        ownerName: 'Robert Johnson',
+                        serviceType: 'Tire Rotation',
+                        date: '2024-01-25',
+                        cost: 1200,
+                        status: 'Pending',
+                        description: 'Tire rotation and alignment'
+                    },
+                    {
+                        id: '4',
+                        vehicleNumber: 'TN04GH3456',
+                        ownerName: 'Maria Garcia',
+                        serviceType: 'Engine Tune-up',
+                        date: '2024-02-01',
+                        cost: 4500,
+                        status: 'Completed',
+                        description: 'Full engine tune-up'
+                    },
+                    {
+                        id: '5',
+                        vehicleNumber: 'UP05IJ7890',
+                        ownerName: 'David Wilson',
+                        serviceType: 'Battery Check',
+                        date: '2024-02-05',
+                        cost: 800,
+                        status: 'Completed',
+                        description: 'Battery health check'
+                    }
+                ];
+                saveData();
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('vehicleServices', JSON.stringify(services));
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Filter and sort services
+        function getFilteredAndSortedServices() {
+            let filtered = [...services];
+
+            // Apply filters
+            if (currentFilters.vehicleNumber) {
+                filtered = filtered.filter(s => 
+                    s.vehicleNumber.toLowerCase().includes(currentFilters.vehicleNumber.toLowerCase())
+                );
+            }
+            if (currentFilters.serviceType) {
+                filtered = filtered.filter(s => s.serviceType === currentFilters.serviceType);
+            }
+
+            // Apply sorting
+            filtered.sort((a, b) => {
+                let aVal = a[currentSort.field];
+                let bVal = b[currentSort.field];
+                
+                if (currentSort.field === 'date') {
+                    aVal = new Date(aVal);
+                    bVal = new Date(bVal);
+                }
+                if (currentSort.field === 'cost') {
+                    aVal = parseFloat(aVal);
+                    bVal = parseFloat(bVal);
+                }
+                
+                if (aVal < bVal) return currentSort.order === 'asc' ? -1 : 1;
+                if (aVal > bVal) return currentSort.order === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            return filtered;
+        }
+
+        // Get paginated services
+        function getPaginatedServices() {
+            const filtered = getFilteredAndSortedServices();
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            return {
+                services: filtered.slice(start, end),
+                total: filtered.length,
+                totalPages: Math.ceil(filtered.length / itemsPerPage)
+            };
+        }
+
+        // Get analytics data
+        function getAnalytics() {
+            const totalServices = services.length;
+            const totalRevenue = services.reduce((sum, s) => sum + s.cost, 0);
+            
+            const servicesByType = {};
+            const servicesByStatus = {};
+            
+            services.forEach(s => {
+                servicesByType[s.serviceType] = (servicesByType[s.serviceType] || 0) + 1;
+                servicesByStatus[s.status] = (servicesByStatus[s.status] || 0) + 1;
+            });
+            
+            return { totalServices, totalRevenue, servicesByType, servicesByStatus };
+        }
+
+        // CRUD Operations
+        function addService(serviceData) {
+            const newService = {
+                id: Date.now().toString(),
+                ...serviceData,
+                date: serviceData.date || new Date().toISOString().split('T')[0]
+            };
+            services.push(newService);
+            saveData();
+            showToast('Service added successfully! 🎉');
+            return newService;
+        }
+
+        function updateService(id, serviceData) {
+            const index = services.findIndex(s => s.id === id);
+            if (index !== -1) {
+                services[index] = { ...services[index], ...serviceData };
+                saveData();
+                showToast('Service updated successfully! ✏️');
+                return services[index];
+            }
+            return null;
+        }
+
+        function deleteService(id) {
+            if (confirm('Are you sure you want to delete this service record?')) {
+                services = services.filter(s => s.id !== id);
+                saveData();
+                showToast('Service deleted successfully! 🗑️');
+                return true;
+            }
+            return false;
+        }
+
+        // Render Analytics
+        function renderAnalytics() {
+            const analytics = getAnalytics();
+            return `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🚗</div>
+                        <div class="stat-info">
+                            <h3>Total Services</h3>
+                            <p>${analytics.totalServices}</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-info">
+                            <h3>Total Revenue</h3>
+                            <p>₹${analytics.totalRevenue.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <h3>Service Types</h3>
+                            <p>${Object.keys(analytics.servicesByType).length}</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-info">
+                            <h3>Active Services</h3>
+                            <p>${(analytics.servicesByStatus['Pending'] || 0) + (analytics.servicesByStatus['In Progress'] || 0)}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render Form
+        function renderForm() {
+            if (!showForm && !editingService) return '';
+            
+            const isEditing = !!editingService;
+            const data = isEditing ? editingService : {};
+            
+            return `
+                <div class="form-container">
+                    <h2>${isEditing ? '✏️ Edit Service Record' : '📝 Add New Service Record'}</h2>
+                    <form id="serviceForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Vehicle Number *</label>
+                                <input type="text" id="vehicleNumber" value="${data.vehicleNumber || ''}" 
+                                       placeholder="e.g., KA01AB1234" maxlength="10" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Owner Name *</label>
+                                <input type="text" id="ownerName" value="${data.ownerName || ''}" 
+                                       placeholder="Enter owner's full name" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Service Type *</label>
+                                <select id="serviceType" required>
+                                    <option value="">Select service type</option>
+                                    ${serviceTypes.map(type => 
+                                        `<option value="${type}" ${data.serviceType === type ? 'selected' : ''}>${type}</option>`
+                                    ).join('')}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Date *</label>
+                                <input type="date" id="date" value="${data.date || new Date().toISOString().split('T')[0]}" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Cost (₹) *</label>
+                                <input type="number" id="cost" value="${data.cost || ''}" 
+                                       placeholder="Enter service cost" step="0.01" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select id="status">
+                                    ${statuses.map(status => 
+                                        `<option value="${status}" ${data.status === status ? 'selected' : ''}>${status}</option>`
+                                    ).join('')}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="description" rows="3" placeholder="Additional details about the service..." maxlength="500">${data.description || ''}</textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="cancelForm()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">${isEditing ? 'Update Service' : 'Add Service'}</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+        }
+
+        // Render Search and Filter
+        function renderSearchFilter() {
+            return `
+                <div class="search-filter">
+                    <div class="search-bar">
+                        <div class="search-input">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="searchVehicle" placeholder="Search by vehicle number..." 
+                                   value="${currentFilters.vehicleNumber}" onkeyup="handleSearch()">
+                        </div>
+                        <button class="filter-toggle" onclick="toggleFilters()">
+                            🔧 Filter
+                        </button>
+                    </div>
+                    <div id="filtersPanel" style="display: none;" class="filters-panel">
+                        <div class="filter-group">
+                            <label>Service Type</label>
+                            <select id="filterServiceType" onchange="handleFilterChange()">
+                                <option value="">All Types</option>
+                                ${serviceTypes.map(type => 
+                                    `<option value="${type}" ${currentFilters.serviceType === type ? 'selected' : ''}>${type}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+                    </div>
+                    <div class="sort-buttons">
+                        <button class="sort-btn ${currentSort.field === 'date' ? 'active' : ''}" onclick="handleSort('date')">
+                            📅 Date ${currentSort.field === 'date' ? (currentSort.order === 'desc' ? '↓' : '↑') : ''}
+                        </button>
+                        <button class="sort-btn ${currentSort.field === 'cost' ? 'active' : ''}" onclick="handleSort('cost')">
+                            💰 Cost ${currentSort.field === 'cost' ? (currentSort.order === 'desc' ? '↓' : '↑') : ''}
+                        </button>
+                        <button class="sort-btn ${currentSort.field === 'vehicleNumber' ? 'active' : ''}" onclick="handleSort('vehicleNumber')">
+                            🚗 Vehicle ${currentSort.field === 'vehicleNumber' ? (currentSort.order === 'desc' ? '↓' : '↑') : ''}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render Service Table
+        function renderServiceTable() {
+            const { services: paginatedServices, total, totalPages } = getPaginatedServices();
+            
+            if (paginatedServices.length === 0) {
+                return `
+                    <div class="empty-state">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🚗</div>
+                        <h3>No service records found</h3>
+                        <p>Click "Add New Service" to create your first service record.</p>
+                    </div>
+                `;
+            }
+            
+            return `
+                <div class="table-responsive">
+                    <table class="service-table">
+                        <thead>
+                            <tr>
+                                <th>Vehicle Number</th>
+                                <th>Owner Name</th>
+                                <th>Service Type</th>
+                                <th>Date</th>
+                                <th>Cost</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${paginatedServices.map(service => `
+                                <tr>
+                                    <td><strong>${service.vehicleNumber}</strong></td>
+                                    <td>${service.ownerName}</td>
+                                    <td>${service.serviceType}</td>
+                                    <td>${new Date(service.date).toLocaleDateString()}</td>
+                                    <td>₹${service.cost.toLocaleString()}</td>
+                                    <td>
+                                        <span class="status-badge" style="background: ${
+                                            service.status === 'Completed' ? '#28a745' :
+                                            service.status === 'In Progress' ? '#17a2b8' :
+                                            service.status === 'Pending' ? '#ffc107' : '#dc3545'
+                                        }">
+                                            ${service.status}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="action-btn edit-btn" onclick="editService('${service.id}')">✏️ Edit</button>
+                                            <button class="action-btn delete-btn" onclick="deleteServiceHandler('${service.id}')">🗑️ Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                ${renderPagination(totalPages)}
+            `;
+        }
+
+        // Render Pagination
+        function renderPagination(totalPages) {
+            if (totalPages <= 1) return '';
+            
+            let pages = [];
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(`
+                    <button class="page-btn ${currentPage === i ? 'active' : ''}" 
+                            onclick="goToPage(${i})">${i}</button>
+                `);
+            }
+            
+            return `
+                <div class="pagination">
+                    <button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>«</button>
+                    ${pages.join('')}
+                    <button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>»</button>
+                </div>
+            `;
+        }
+
+        // Main Render Function
+        function render() {
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                ${renderAnalytics()}
+                <div class="main-content">
+                    <div style="text-align: right; margin-bottom: 20px;">
+                        <button class="btn btn-primary" onclick="toggleForm()">
+                            ${showForm || editingService ? '✖ Cancel' : '+ Add New Service'}
+                        </button>
+                    </div>
+                    ${renderForm()}
+                    ${renderSearchFilter()}
+                    ${renderServiceTable()}
+                </div>
+            `;
+        }
+
+        // Event Handlers
+        window.toggleForm = function() {
+            showForm = !showForm;
+            if (showForm) editingService = null;
+            render();
+        };
+
+        window.cancelForm = function() {
+            showForm = false;
+            editingService = null;
+            render();
+        };
+
+        window.editService = function(id) {
+            const service = services.find(s => s.id === id);
+            if (service) {
+                editingService = service;
+                showForm = false;
+                render();
+            }
+        };
+
+        window.deleteServiceHandler = function(id) {
+            if (deleteService(id)) {
+                if (currentPage > 1 && getPaginatedServices().services.length === 0) {
+                    currentPage--;
+                }
+                render();
+            }
+        };
+
+        window.handleSearch = function() {
+            const searchInput = document.getElementById('searchVehicle');
+            currentFilters.vehicleNumber = searchInput.value;
+            currentPage = 1;
+            render();
+        };
+
+        window.handleFilterChange = function() {
+            const filterSelect = document.getElementById('filterServiceType');
+            currentFilters.serviceType = filterSelect.value;
+            currentPage = 1;
+            render();
+        };
+
+        window.clearFilters = function() {
+            currentFilters = { vehicleNumber: '', serviceType: '' };
+            currentPage = 1;
+            render();
+        };
+
+        window.toggleFilters = function() {
+            const panel = document.getElementById('filtersPanel');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'flex';
+            } else {
+                panel.style.display = 'none';
+            }
+        };
+
+        window.handleSort = function(field) {
+            if (currentSort.field === field) {
+                currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.field = field;
+                currentSort.order = 'desc';
+            }
+            render();
+        };
+
+        window.goToPage = function(page) {
+            const { totalPages } = getPaginatedServices();
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                render();
+            }
+        };
+
+        // Form Submission
+        document.addEventListener('submit', function(e) {
+            if (e.target.id === 'serviceForm') {
+                e.preventDefault();
+                
+                const formData = {
+                    vehicleNumber: document.getElementById('vehicleNumber').value.toUpperCase(),
+                    ownerName: document.getElementById('ownerName').value,
+                    serviceType: document.getElementById('serviceType').value,
+                    date: document.getElementById('date').value,
+                    cost: parseFloat(document.getElementById('cost').value),
+                    status: document.getElementById('status').value,
+                    description: document.getElementById('description').value
+                };
+                
+                // Validate
+                if (!formData.vehicleNumber || !formData.ownerName || !formData.serviceType || !formData.date || !formData.cost) {
+                    showToast('Please fill all required fields!', 'error');
+                    return;
+                }
+                
+                if (formData.cost < 0) {
+                    showToast('Cost cannot be negative!', 'error');
+                    return;
+                }
+                
+                if (editingService) {
+                    updateService(editingService.id, formData);
+                    editingService = null;
+                } else {
+                    addService(formData);
+                }
+                
+                currentPage = 1;
+                render();
+            }
+        });
+
+        // Initialize
+        loadData();
+        render();
+    </script>
+</body>
+</html>
