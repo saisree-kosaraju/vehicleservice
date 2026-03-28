@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vehicle Service Management System</title>
+    <title>Vehicle Service Management System - 2W, 3W & 4W</title>
     <style>
         * {
             margin: 0;
@@ -13,9 +13,23 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            position: relative;
+            background: url('https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=1600') center/cover fixed;
+            position: relative;
+        }
+
+        /* Dark Overlay for better readability */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5));
+            z-index: -1;
         }
 
         .container {
@@ -29,10 +43,11 @@
             color: white;
             margin-bottom: 30px;
             padding: 30px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.6);
             border-radius: 20px;
             backdrop-filter: blur(10px);
             animation: fadeIn 0.5s ease-in;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .header h1 {
@@ -49,6 +64,32 @@
             opacity: 0.9;
         }
 
+        /* Vehicle Type Badge */
+        .vehicle-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-4w {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+        }
+
+        .badge-3w {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            color: white;
+        }
+
+        .badge-2w {
+            background: linear-gradient(135deg, #4CAF50, #388E3C);
+            color: white;
+        }
+
         /* Dashboard Cards */
         .stats-grid {
             display: grid;
@@ -58,15 +99,16 @@
         }
 
         .stat-card {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
             padding: 20px;
             display: flex;
             align-items: center;
             gap: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             transition: transform 0.3s;
             cursor: pointer;
+            backdrop-filter: blur(5px);
         }
 
         .stat-card:hover {
@@ -96,13 +138,19 @@
             color: #333;
         }
 
+        .stat-info small {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
         /* Main Content */
         .main-content {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             animation: fadeIn 0.5s ease-in;
+            backdrop-filter: blur(5px);
         }
 
         /* Buttons */
@@ -132,10 +180,6 @@
         .btn-danger {
             background: #dc3545;
             color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
         }
 
         .btn-success {
@@ -219,11 +263,13 @@
             display: flex;
             gap: 10px;
             margin-bottom: 15px;
+            flex-wrap: wrap;
         }
 
         .search-input {
             flex: 1;
             position: relative;
+            min-width: 200px;
         }
 
         .search-input input {
@@ -261,10 +307,12 @@
             display: flex;
             gap: 15px;
             align-items: flex-end;
+            flex-wrap: wrap;
         }
 
         .filter-group {
             flex: 1;
+            min-width: 150px;
         }
 
         .filter-group label {
@@ -278,6 +326,7 @@
         .sort-buttons {
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .sort-btn {
@@ -393,13 +442,7 @@
             opacity: 0.5;
         }
 
-        /* Loading and Empty States */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-
+        /* Empty States */
         .empty-state {
             text-align: center;
             padding: 60px;
@@ -426,10 +469,6 @@
 
         .toast-error {
             background: #dc3545;
-        }
-
-        .toast-info {
-            background: #17a2b8;
         }
 
         /* Animations */
@@ -483,15 +522,6 @@
                 gap: 15px;
             }
             
-            .filters-panel {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .sort-buttons {
-                flex-wrap: wrap;
-            }
-            
             .stats-grid {
                 grid-template-columns: 1fr;
             }
@@ -505,20 +535,66 @@
                 <span>🚗</span>
                 Vehicle Service Management System
             </h1>
-            <p>Efficiently manage and track all vehicle service records</p>
+            <p>Manage 2-Wheelers 🏍️ | 3-Wheelers 🛺 | 4-Wheelers 🚗 with popular models</p>
         </div>
 
         <div id="app"></div>
     </div>
 
     <script>
+        // Vehicle Models Database
+        const vehicleModels = {
+            '4-Wheeler': [
+                'Tesla Model 3', 'Tesla Model Y', 'Tesla Model S', 'Tesla Cybertruck',
+                'MG Hector', 'MG ZS EV', 'MG Astor', 'MG Gloster',
+                'Hyundai Creta', 'Hyundai i20', 'Hyundai Verna', 'Hyundai Tucson', 'Hyundai Venue',
+                'Toyota Fortuner', 'Toyota Innova', 'Toyota Camry', 'Toyota Glanza',
+                'BMW X5', 'BMW 3 Series', 'BMW 5 Series', 'BMW X7',
+                'Mercedes E-Class', 'Mercedes C-Class', 'Mercedes GLC', 'Mercedes S-Class',
+                'Audi Q7', 'Audi A6', 'Audi Q5', 'Audi e-tron',
+                'Mahindra Thar', 'Mahindra Scorpio', 'Mahindra XUV700',
+                'Tata Safari', 'Tata Nexon', 'Tata Harrier', 'Tata Punch',
+                'Kia Seltos', 'Kia Sonet', 'Kia Carnival',
+                'Volkswagen Taigun', 'Volkswagen Virtus',
+                'Skoda Kushaq', 'Skoda Slavia',
+                'Jeep Compass', 'Jeep Meridian',
+                'Ford Endeavour', 'Ford Mustang'
+            ],
+            '3-Wheeler': [
+                'Bajaj Auto Rickshaw', 'Bajaj RE Compact', 'Piaggio Ape City', 'Piaggio Ape Xtra',
+                'Mahindra Alfa', 'Mahindra Treo', 'Mahindra Zorox',
+                'TVS King', 'TVS King Deluxe',
+                'Atul Shakti', 'Atul Gem',
+                'Lohia Humsafar', 'Lohia Narain',
+                'Electric Auto - Ola Electric', 'Electric Auto - Kinetic Green',
+                'E-Rickshaw - Champion', 'E-Rickshaw - Saarthi',
+                'Kerala Auto', 'Mumbai Auto', 'Delhi Auto'
+            ],
+            '2-Wheeler': [
+                'Honda Activa', 'Honda Dio', 'Honda Shine', 'Honda CB Hornet',
+                'Suzuki Access', 'Suzuki Burgman', 'Suzuki Gixxer', 'Suzuki Hayabusa',
+                'TVS Jupiter', 'TVS Apache', 'TVS Ntorq', 'TVS Raider',
+                'Yamaha Fascino', 'Yamaha R15', 'Yamaha MT-15', 'Yamaha FZ',
+                'Bajaj Pulsar', 'Bajaj Platina', 'Bajaj Dominar', 'Bajaj CT 100',
+                'Royal Enfield Classic', 'Royal Enfield Meteor', 'Royal Enfield Hunter', 'Royal Enfield Himalayan',
+                'KTM Duke 200', 'KTM Duke 390', 'KTM RC 390',
+                'Ola S1 Pro', 'Ola S1 Air', 'Ather 450X', 'Ather 450S',
+                'Hero Splendor', 'Hero Passion', 'Hero Xpulse', 'Hero Glamour',
+                'Benelli Imperiale', 'Benelli Leoncino',
+                'Harley Davidson Street', 'Harley Davidson Sportster',
+                'Triumph Speed 400', 'Triumph Scrambler 400'
+            ]
+        };
+
         // Data Storage
         let services = [];
         let currentPage = 1;
         let itemsPerPage = 10;
         let currentFilters = {
             vehicleNumber: '',
-            serviceType: ''
+            serviceType: '',
+            vehicleType: '',
+            vehicleModel: ''
         };
         let currentSort = {
             field: 'date',
@@ -529,12 +605,9 @@
 
         // Service Types
         const serviceTypes = [
-            'Oil Change',
-            'Tire Rotation',
-            'Engine Tune-up',
-            'Brake Service',
-            'Battery Check',
-            'General Maintenance'
+            'Oil Change', 'Tire Rotation', 'Engine Tune-up', 'Brake Service',
+            'Battery Check', 'General Maintenance', 'Full Service', 'AC Service',
+            'Wheel Alignment', 'Engine Repair', 'Electrical Repair', 'Body Repair'
         ];
 
         const statuses = ['Pending', 'In Progress', 'Completed', 'Cancelled'];
@@ -545,57 +618,190 @@
             if (saved) {
                 services = JSON.parse(saved);
             } else {
-                // Add sample data
+                // Add sample data with all three types
                 services = [
+                    // 4-Wheelers
                     {
                         id: '1',
+                        vehicleType: '4-Wheeler',
+                        vehicleModel: 'Tesla Model 3',
                         vehicleNumber: 'KA01AB1234',
-                        ownerName: 'John Doe',
-                        serviceType: 'Oil Change',
+                        ownerName: 'Elon Musk',
+                        serviceType: 'Battery Check',
                         date: '2024-01-15',
-                        cost: 2500,
+                        cost: 8500,
                         status: 'Completed',
-                        description: 'Regular oil change service'
+                        description: 'Battery health check and software update'
                     },
                     {
                         id: '2',
+                        vehicleType: '4-Wheeler',
+                        vehicleModel: 'Hyundai Creta',
                         vehicleNumber: 'MH02CD5678',
-                        ownerName: 'Jane Smith',
-                        serviceType: 'Brake Service',
+                        ownerName: 'Rahul Sharma',
+                        serviceType: 'Oil Change',
                         date: '2024-01-20',
-                        cost: 3500,
-                        status: 'In Progress',
-                        description: 'Brake pad replacement'
+                        cost: 4500,
+                        status: 'Completed',
+                        description: 'Regular oil change and filter replacement'
                     },
                     {
                         id: '3',
+                        vehicleType: '4-Wheeler',
+                        vehicleModel: 'Toyota Fortuner',
                         vehicleNumber: 'DL03EF9012',
-                        ownerName: 'Robert Johnson',
-                        serviceType: 'Tire Rotation',
+                        ownerName: 'Vikram Singh',
+                        serviceType: 'Brake Service',
                         date: '2024-01-25',
-                        cost: 1200,
-                        status: 'Pending',
-                        description: 'Tire rotation and alignment'
+                        cost: 12000,
+                        status: 'In Progress',
+                        description: 'Brake pad replacement and brake fluid change'
                     },
                     {
                         id: '4',
-                        vehicleNumber: 'TN04GH3456',
-                        ownerName: 'Maria Garcia',
-                        serviceType: 'Engine Tune-up',
-                        date: '2024-02-01',
-                        cost: 4500,
+                        vehicleType: '4-Wheeler',
+                        vehicleModel: 'BMW X5',
+                        vehicleNumber: 'MH07MN5678',
+                        ownerName: 'Neha Gupta',
+                        serviceType: 'Full Service',
+                        date: '2024-02-15',
+                        cost: 25000,
                         status: 'Completed',
-                        description: 'Full engine tune-up'
+                        description: 'Complete servicing and diagnostics'
                     },
                     {
                         id: '5',
-                        vehicleNumber: 'UP05IJ7890',
-                        ownerName: 'David Wilson',
+                        vehicleType: '4-Wheeler',
+                        vehicleModel: 'Mahindra Thar',
+                        vehicleNumber: 'TN09QR3456',
+                        ownerName: 'Rohit Mehta',
+                        serviceType: 'Oil Change',
+                        date: '2024-02-20',
+                        cost: 6800,
+                        status: 'Pending',
+                        description: 'Engine oil and filter change'
+                    },
+                    // 3-Wheelers
+                    {
+                        id: '6',
+                        vehicleType: '3-Wheeler',
+                        vehicleModel: 'Bajaj Auto Rickshaw',
+                        vehicleNumber: 'DL04GH5678',
+                        ownerName: 'Rajesh Kumar',
+                        serviceType: 'Engine Repair',
+                        date: '2024-01-28',
+                        cost: 3500,
+                        status: 'Completed',
+                        description: 'Engine overhaul and tuning'
+                    },
+                    {
+                        id: '7',
+                        vehicleType: '3-Wheeler',
+                        vehicleModel: 'Mahindra Treo',
+                        vehicleNumber: 'UP05IJ9012',
+                        ownerName: 'Suresh Patel',
                         serviceType: 'Battery Check',
                         date: '2024-02-05',
-                        cost: 800,
+                        cost: 2800,
+                        status: 'In Progress',
+                        description: 'Battery replacement and motor check'
+                    },
+                    {
+                        id: '8',
+                        vehicleType: '3-Wheeler',
+                        vehicleModel: 'Piaggio Ape City',
+                        vehicleNumber: 'KA06KL3456',
+                        ownerName: 'Manoj Yadav',
+                        serviceType: 'General Maintenance',
+                        date: '2024-02-10',
+                        cost: 2200,
                         status: 'Completed',
-                        description: 'Battery health check'
+                        description: 'Regular maintenance and cleaning'
+                    },
+                    {
+                        id: '9',
+                        vehicleType: '3-Wheeler',
+                        vehicleModel: 'TVS King',
+                        vehicleNumber: 'MH07MN7890',
+                        ownerName: 'Anil Sharma',
+                        serviceType: 'Wheel Alignment',
+                        date: '2024-02-12',
+                        cost: 1800,
+                        status: 'Pending',
+                        description: 'Wheel alignment and tire rotation'
+                    },
+                    {
+                        id: '10',
+                        vehicleType: '3-Wheeler',
+                        vehicleModel: 'Electric Auto',
+                        vehicleNumber: 'TN08OP1234',
+                        ownerName: 'Priya Singh',
+                        serviceType: 'Electrical Repair',
+                        date: '2024-02-18',
+                        cost: 3200,
+                        status: 'Completed',
+                        description: 'Electrical wiring and controller check'
+                    },
+                    // 2-Wheelers
+                    {
+                        id: '11',
+                        vehicleType: '2-Wheeler',
+                        vehicleModel: 'Honda Activa',
+                        vehicleNumber: 'TN04GH3456',
+                        ownerName: 'Priya Patel',
+                        serviceType: 'General Maintenance',
+                        date: '2024-02-01',
+                        cost: 1800,
+                        status: 'Completed',
+                        description: 'Regular service and cleaning'
+                    },
+                    {
+                        id: '12',
+                        vehicleType: '2-Wheeler',
+                        vehicleModel: 'Royal Enfield Classic',
+                        vehicleNumber: 'UP05IJ7890',
+                        ownerName: 'Arjun Reddy',
+                        serviceType: 'Engine Tune-up',
+                        date: '2024-02-05',
+                        cost: 3500,
+                        status: 'Completed',
+                        description: 'Engine tuning and carburetor cleaning'
+                    },
+                    {
+                        id: '13',
+                        vehicleType: '2-Wheeler',
+                        vehicleModel: 'TVS Apache',
+                        vehicleNumber: 'DL08OP9012',
+                        ownerName: 'Karthik',
+                        serviceType: 'Tire Rotation',
+                        date: '2024-02-18',
+                        cost: 1200,
+                        status: 'Completed',
+                        description: 'Tire alignment and rotation'
+                    },
+                    {
+                        id: '14',
+                        vehicleType: '2-Wheeler',
+                        vehicleModel: 'Ola S1 Pro',
+                        vehicleNumber: 'UP10ST7890',
+                        ownerName: 'Divya Nair',
+                        serviceType: 'Battery Check',
+                        date: '2024-02-22',
+                        cost: 900,
+                        status: 'Completed',
+                        description: 'Battery health check and software update'
+                    },
+                    {
+                        id: '15',
+                        vehicleType: '2-Wheeler',
+                        vehicleModel: 'Bajaj Pulsar',
+                        vehicleNumber: 'MH11UV1234',
+                        ownerName: 'Amit Verma',
+                        serviceType: 'Oil Change',
+                        date: '2024-02-25',
+                        cost: 1500,
+                        status: 'Pending',
+                        description: 'Engine oil change and filter cleaning'
                     }
                 ];
                 saveData();
@@ -618,6 +824,16 @@
             }, 3000);
         }
 
+        // Update vehicle models based on type
+        function updateVehicleModels(vehicleType) {
+            const modelSelect = document.getElementById('vehicleModel');
+            if (modelSelect) {
+                const models = vehicleModels[vehicleType] || [];
+                modelSelect.innerHTML = '<option value="">Select model</option>' +
+                    models.map(model => `<option value="${model}">${model}</option>`).join('');
+            }
+        }
+
         // Filter and sort services
         function getFilteredAndSortedServices() {
             let filtered = [...services];
@@ -625,11 +841,18 @@
             // Apply filters
             if (currentFilters.vehicleNumber) {
                 filtered = filtered.filter(s => 
-                    s.vehicleNumber.toLowerCase().includes(currentFilters.vehicleNumber.toLowerCase())
+                    s.vehicleNumber.toLowerCase().includes(currentFilters.vehicleNumber.toLowerCase()) ||
+                    s.vehicleModel.toLowerCase().includes(currentFilters.vehicleNumber.toLowerCase())
                 );
             }
             if (currentFilters.serviceType) {
                 filtered = filtered.filter(s => s.serviceType === currentFilters.serviceType);
+            }
+            if (currentFilters.vehicleType) {
+                filtered = filtered.filter(s => s.vehicleType === currentFilters.vehicleType);
+            }
+            if (currentFilters.vehicleModel) {
+                filtered = filtered.filter(s => s.vehicleModel === currentFilters.vehicleModel);
             }
 
             // Apply sorting
@@ -670,16 +893,29 @@
         function getAnalytics() {
             const totalServices = services.length;
             const totalRevenue = services.reduce((sum, s) => sum + s.cost, 0);
+            const fourWheelers = services.filter(s => s.vehicleType === '4-Wheeler').length;
+            const threeWheelers = services.filter(s => s.vehicleType === '3-Wheeler').length;
+            const twoWheelers = services.filter(s => s.vehicleType === '2-Wheeler').length;
+            
+            const revenue4W = services.filter(s => s.vehicleType === '4-Wheeler').reduce((sum, s) => sum + s.cost, 0);
+            const revenue3W = services.filter(s => s.vehicleType === '3-Wheeler').reduce((sum, s) => sum + s.cost, 0);
+            const revenue2W = services.filter(s => s.vehicleType === '2-Wheeler').reduce((sum, s) => sum + s.cost, 0);
             
             const servicesByType = {};
             const servicesByStatus = {};
+            const servicesByModel = {};
             
             services.forEach(s => {
                 servicesByType[s.serviceType] = (servicesByType[s.serviceType] || 0) + 1;
                 servicesByStatus[s.status] = (servicesByStatus[s.status] || 0) + 1;
+                servicesByModel[s.vehicleModel] = (servicesByModel[s.vehicleModel] || 0) + 1;
             });
             
-            return { totalServices, totalRevenue, servicesByType, servicesByStatus };
+            return { 
+                totalServices, totalRevenue, fourWheelers, threeWheelers, twoWheelers,
+                revenue4W, revenue3W, revenue2W,
+                servicesByType, servicesByStatus, servicesByModel 
+            };
         }
 
         // CRUD Operations
@@ -691,7 +927,7 @@
             };
             services.push(newService);
             saveData();
-            showToast('Service added successfully! 🎉');
+            showToast(`${serviceData.vehicleModel} service added successfully! 🎉`, 'success');
             return newService;
         }
 
@@ -700,7 +936,7 @@
             if (index !== -1) {
                 services[index] = { ...services[index], ...serviceData };
                 saveData();
-                showToast('Service updated successfully! ✏️');
+                showToast(`${serviceData.vehicleModel} updated successfully! ✏️`, 'success');
                 return services[index];
             }
             return null;
@@ -710,7 +946,7 @@
             if (confirm('Are you sure you want to delete this service record?')) {
                 services = services.filter(s => s.id !== id);
                 saveData();
-                showToast('Service deleted successfully! 🗑️');
+                showToast('Service deleted successfully! 🗑️', 'success');
                 return true;
             }
             return false;
@@ -726,6 +962,7 @@
                         <div class="stat-info">
                             <h3>Total Services</h3>
                             <p>${analytics.totalServices}</p>
+                            <small>🚗 4W: ${analytics.fourWheelers} | 🛺 3W: ${analytics.threeWheelers} | 🏍️ 2W: ${analytics.twoWheelers}</small>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -733,6 +970,7 @@
                         <div class="stat-info">
                             <h3>Total Revenue</h3>
                             <p>₹${analytics.totalRevenue.toLocaleString()}</p>
+                            <small>🚗 4W: ₹${analytics.revenue4W.toLocaleString()} | 🛺 3W: ₹${analytics.revenue3W.toLocaleString()} | 🏍️ 2W: ₹${analytics.revenue2W.toLocaleString()}</small>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -759,6 +997,8 @@
             
             const isEditing = !!editingService;
             const data = isEditing ? editingService : {};
+            const vehicleType = data.vehicleType || '';
+            const models = vehicleModels[vehicleType] || [];
             
             return `
                 <div class="form-container">
@@ -766,9 +1006,29 @@
                     <form id="serviceForm">
                         <div class="form-row">
                             <div class="form-group">
+                                <label>Vehicle Type *</label>
+                                <select id="vehicleType" onchange="updateVehicleModels(this.value)" required>
+                                    <option value="">Select vehicle type</option>
+                                    <option value="4-Wheeler" ${data.vehicleType === '4-Wheeler' ? 'selected' : ''}>🚗 4-Wheeler (Car/SUV)</option>
+                                    <option value="3-Wheeler" ${data.vehicleType === '3-Wheeler' ? 'selected' : ''}>🛺 3-Wheeler (Auto/E-Rickshaw)</option>
+                                    <option value="2-Wheeler" ${data.vehicleType === '2-Wheeler' ? 'selected' : ''}>🏍️ 2-Wheeler (Bike/Scooter)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Vehicle Model *</label>
+                                <select id="vehicleModel" required>
+                                    <option value="">Select model</option>
+                                    ${models.map(model => 
+                                        `<option value="${model}" ${data.vehicleModel === model ? 'selected' : ''}>${model}</option>`
+                                    ).join('')}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
                                 <label>Vehicle Number *</label>
                                 <input type="text" id="vehicleNumber" value="${data.vehicleNumber || ''}" 
-                                       placeholder="e.g., KA01AB1234" maxlength="10" required>
+                                       placeholder="e.g., KA01AB1234" maxlength="12" required>
                             </div>
                             <div class="form-group">
                                 <label>Owner Name *</label>
@@ -821,12 +1081,17 @@
 
         // Render Search and Filter
         function renderSearchFilter() {
+            const topModels = Object.entries(getAnalytics().servicesByModel)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5)
+                .map(([model]) => model);
+            
             return `
                 <div class="search-filter">
                     <div class="search-bar">
                         <div class="search-input">
                             <span class="search-icon">🔍</span>
-                            <input type="text" id="searchVehicle" placeholder="Search by vehicle number..." 
+                            <input type="text" id="searchVehicle" placeholder="Search by vehicle number or model..." 
                                    value="${currentFilters.vehicleNumber}" onkeyup="handleSearch()">
                         </div>
                         <button class="filter-toggle" onclick="toggleFilters()">
@@ -834,6 +1099,24 @@
                         </button>
                     </div>
                     <div id="filtersPanel" style="display: none;" class="filters-panel">
+                        <div class="filter-group">
+                            <label>Vehicle Type</label>
+                            <select id="filterVehicleType" onchange="handleFilterChange()">
+                                <option value="">All Types</option>
+                                <option value="4-Wheeler" ${currentFilters.vehicleType === '4-Wheeler' ? 'selected' : ''}>🚗 4-Wheeler</option>
+                                <option value="3-Wheeler" ${currentFilters.vehicleType === '3-Wheeler' ? 'selected' : ''}>🛺 3-Wheeler</option>
+                                <option value="2-Wheeler" ${currentFilters.vehicleType === '2-Wheeler' ? 'selected' : ''}>🏍️ 2-Wheeler</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Vehicle Model</label>
+                            <select id="filterVehicleModel" onchange="handleFilterChange()">
+                                <option value="">All Models</option>
+                                ${topModels.map(model => 
+                                    `<option value="${model}" ${currentFilters.vehicleModel === model ? 'selected' : ''}>${model}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
                         <div class="filter-group">
                             <label>Service Type</label>
                             <select id="filterServiceType" onchange="handleFilterChange()">
@@ -843,17 +1126,20 @@
                                 ).join('')}
                             </select>
                         </div>
-                        <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+                        <button class="btn btn-secondary" onclick="clearFilters()">Clear All</button>
                     </div>
                     <div class="sort-buttons">
+                        <button class="sort-btn ${currentSort.field === 'vehicleType' ? 'active' : ''}" onclick="handleSort('vehicleType')">
+                            🚗 Type ${currentSort.field === 'vehicleType' ? (currentSort.order === 'desc' ? '↓' : '↑') : ''}
+                        </button>
+                        <button class="sort-btn ${currentSort.field === 'vehicleModel' ? 'active' : ''}" onclick="handleSort('vehicleModel')">
+                            🏷️ Model ${currentSort.field === 'vehicleModel' ? (currentSort.order === 'desc' ? '↓' : '↑') : ''}
+                        </button>
                         <button class="sort-btn ${currentSort.field === 'date' ? 'active' : ''}" onclick="handleSort('date')">
                             📅 Date ${currentSort.field === 'date' ? (currentSort.order === 'desc' ? '↓' : '↑') : ''}
                         </button>
                         <button class="sort-btn ${currentSort.field === 'cost' ? 'active' : ''}" onclick="handleSort('cost')">
                             💰 Cost ${currentSort.field === 'cost' ? (currentSort.order === 'desc' ? '↓' : '↑') : ''}
-                        </button>
-                        <button class="sort-btn ${currentSort.field === 'vehicleNumber' ? 'active' : ''}" onclick="handleSort('vehicleNumber')">
-                            🚗 Vehicle ${currentSort.field === 'vehicleNumber' ? (currentSort.order === 'desc' ? '↓' : '↑') : ''}
                         </button>
                     </div>
                 </div>
@@ -879,9 +1165,11 @@
                     <table class="service-table">
                         <thead>
                             <tr>
-                                <th>Vehicle Number</th>
-                                <th>Owner Name</th>
-                                <th>Service Type</th>
+                                <th>Type</th>
+                                <th>Model</th>
+                                <th>Vehicle No</th>
+                                <th>Owner</th>
+                                <th>Service</th>
                                 <th>Date</th>
                                 <th>Cost</th>
                                 <th>Status</th>
@@ -891,7 +1179,13 @@
                         <tbody>
                             ${paginatedServices.map(service => `
                                 <tr>
-                                    <td><strong>${service.vehicleNumber}</strong></td>
+                                    <td>
+                                        <span class="vehicle-badge ${service.vehicleType === '4-Wheeler' ? 'badge-4w' : service.vehicleType === '3-Wheeler' ? 'badge-3w' : 'badge-2w'}">
+                                            ${service.vehicleType === '4-Wheeler' ? '🚗 4W' : service.vehicleType === '3-Wheeler' ? '🛺 3W' : '🏍️ 2W'}
+                                        </span>
+                                    </td>
+                                    <td><strong>${service.vehicleModel}</strong></td>
+                                    <td>${service.vehicleNumber}</td>
                                     <td>${service.ownerName}</td>
                                     <td>${service.serviceType}</td>
                                     <td>${new Date(service.date).toLocaleDateString()}</td>
@@ -998,14 +1292,19 @@
         };
 
         window.handleFilterChange = function() {
-            const filterSelect = document.getElementById('filterServiceType');
-            currentFilters.serviceType = filterSelect.value;
+            const vehicleTypeFilter = document.getElementById('filterVehicleType');
+            const vehicleModelFilter = document.getElementById('filterVehicleModel');
+            const serviceTypeFilter = document.getElementById('filterServiceType');
+            
+            currentFilters.vehicleType = vehicleTypeFilter ? vehicleTypeFilter.value : '';
+            currentFilters.vehicleModel = vehicleModelFilter ? vehicleModelFilter.value : '';
+            currentFilters.serviceType = serviceTypeFilter ? serviceTypeFilter.value : '';
             currentPage = 1;
             render();
         };
 
         window.clearFilters = function() {
-            currentFilters = { vehicleNumber: '', serviceType: '' };
+            currentFilters = { vehicleNumber: '', serviceType: '', vehicleType: '', vehicleModel: '' };
             currentPage = 1;
             render();
         };
@@ -1043,6 +1342,8 @@
                 e.preventDefault();
                 
                 const formData = {
+                    vehicleType: document.getElementById('vehicleType').value,
+                    vehicleModel: document.getElementById('vehicleModel').value,
                     vehicleNumber: document.getElementById('vehicleNumber').value.toUpperCase(),
                     ownerName: document.getElementById('ownerName').value,
                     serviceType: document.getElementById('serviceType').value,
@@ -1053,7 +1354,8 @@
                 };
                 
                 // Validate
-                if (!formData.vehicleNumber || !formData.ownerName || !formData.serviceType || !formData.date || !formData.cost) {
+                if (!formData.vehicleType || !formData.vehicleModel || !formData.vehicleNumber || 
+                    !formData.ownerName || !formData.serviceType || !formData.date || !formData.cost) {
                     showToast('Please fill all required fields!', 'error');
                     return;
                 }
